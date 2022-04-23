@@ -1,8 +1,7 @@
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 public class Board {
 
@@ -15,6 +14,8 @@ public class Board {
     public FileManager fileManager = new FileManager();
 
     public String solutionPath = "";
+
+    public int solutionSize = 0;
 
     public Board(Board newBoard){
         this.gameBoard = deepCopy(newBoard);
@@ -174,5 +175,9 @@ public class Board {
             System.arraycopy(board.gameBoard[i], 0, tab[i], 0, board.gameBoard.length);
         }
         return tab;
+    }
+
+    public void reverse() {
+        Collections.reverse(neighbours);
     }
 }

@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class FileManager {
-    public static String INITIAL_FILE = "uklad_poczatkowy.txt";
+    public static String INITIAL_FILE = "puzzles/4x4_07_00001.txt";
 
     public FileManager() {
 
@@ -20,5 +22,18 @@ public class FileManager {
             tmp[i] = read.nextInt();
         }
         return tmp;
+    }
+
+    public void saveToFile(String solution, int number)  {
+        PrintWriter print;
+        try {
+            print = new PrintWriter("solution.txt");
+            print.println(number);
+            print.println(solution);
+            print.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }

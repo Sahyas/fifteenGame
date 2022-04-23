@@ -17,9 +17,16 @@ public class App {
         Board board1 = new Board();
         Board goal = new Board(solvedBoard);
         BFS bfs = new BFS();
+        DFS dfs = new DFS();
 
-        if(bfs.search(board1, goal)){
-            System.out.print("sukces\n");
+        //bfs.search(board1, goal);
+
+        if(dfs.search(board1, goal)){
+            System.out.print("sukces");
         }
+        else{
+            System.out.print("yikes");
+        }
+
     }
 }
