@@ -1,14 +1,40 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Board {
 
-    private int[][] gameBoard;
+    public List<Board> neighbours = new ArrayList<>();
 
-    private int[] zero = new int[2];
+    public int[][] gameBoard;
 
-    private FileManager fileManager = new FileManager();
+    public int[] zero = new int[2];
+
+    public FileManager fileManager = new FileManager();
+
+    public String solutionPath = "";
+
+    public Board(Board newBoard){
+        this.gameBoard = deepCopy(newBoard);
+        solutionPath = String.valueOf(newBoard.solutionPath);
+        this.neighbours = newBoard.neighbours;
+        this.zero = newBoard.zero;
+        this.fileManager = newBoard.fileManager;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (gameBoard[i][j] == 0) {
+                    zero[0] = i;
+                    zero[1] = j;
+                }
+            }
+        }
+    }
+
+    public Board(int[][] board){
+        this.gameBoard = board;
+    }
 
     public Board() {
         try {
@@ -26,8 +52,8 @@ public class Board {
             for (int i = 0; i < gameBoard.length; i++) {
                 for (int j = 0; j < gameBoard.length; j++) {
                     if (gameBoard[i][j] == 0) {
-                        zero[0] = i;
-                        zero[1] = j;
+                        this.zero[0] = i;
+                        this.zero[1] = j;
                     }
                 }
             }
@@ -38,14 +64,6 @@ public class Board {
 
     public int getBoardNumber(int x, int y) {
         return gameBoard[x][y];
-    }
-
-    public void setGameBoard(int x, int y, int value) {
-        this.gameBoard[x][y] = value;
-    }
-
-    public void setZero(int index, int value) {
-        this.zero[index] = value;
     }
 
     public void printBoard(){
@@ -62,36 +80,99 @@ public class Board {
         }
     }
 
-    public void move(char direction) {
+    public int[][] getGameBoard() {
+        return gameBoard;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Board board = (Board) o;
+
+        return new org.apache.commons.lang3.builder.EqualsBuilder().
+                append(gameBoard, board.gameBoard).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37).append(gameBoard).toHashCode();
+    }
+
+    public Board move(String direction) {
+        Board newBoard = new Board(this);
         switch (direction) {
-            case 'L':
+            case "L":
                 if (zero[1] != 0) {
-                    setGameBoard(zero[0], zero[1], gameBoard[zero[0]][zero[1] - 1]);
-                    setGameBoard(zero[0], zero[1] - 1, 0);
-                    setZero(1,zero[1] - 1);
+                    newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0]][zero[1] - 1];
+                    newBoard.gameBoard[zero[0]][zero[1] - 1] = 0;
+                    newBoard.zero[1] = this.zero[1] - 1;
+                    newBoard.solutionPath += "L";
                 }
                 break;
-            case 'R':
-                if (zero[1] != gameBoard.length) {
-                    setGameBoard(zero[0], zero[1], gameBoard[zero[0]][zero[1] + 1]);
-                    setGameBoard(zero[0], zero[1] + 1, 0);
-                    setZero(1,zero[1] + 1);
+            case "R":
+                if (zero[1] != gameBoard.length - 1) {
+                    newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0]][zero[1] + 1];
+                    newBoard.gameBoard[zero[0]][zero[1] + 1] = 0;
+                    newBoard.zero[1] = this.zero[1] + 1;
+                    newBoard.solutionPath += "R";
                 }
                 break;
-            case 'U':
+            case "U":
                 if (zero[0] != 0) {
-                    setGameBoard(zero[0], zero[1], gameBoard[zero[0] - 1][zero[1]]);
-                    setGameBoard(zero[0] - 1, zero[1], 0);
-                    setZero(0,zero[0] - 1);
+                    newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0] - 1][zero[1]];
+                    newBoard.gameBoard[zero[0] - 1][zero[1]] = 0;
+                    newBoard.zero[0] = this.zero[0] - 1;
+                    newBoard.solutionPath += "U";
                 }
                 break;
-            case 'D':
-                if (zero[0] != gameBoard.length) {
-                    setGameBoard(zero[0], zero[1], gameBoard[zero[0] + 1][zero[1]]);
-                    setGameBoard(zero[0] + 1, zero[1], 0);
-                    setZero(0,zero[0] + 1);
+            case "D":
+                if (zero[0] != gameBoard.length - 1) {
+                    newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0] + 1][zero[1]];
+                    newBoard.gameBoard[zero[0] + 1][zero[1]] = 0;
+                    newBoard.zero[0] = this.zero[0] + 1;
+                    newBoard.solutionPath += "D";
                 }
                 break;
         }
+        return newBoard;
+    }
+
+    public boolean canBeMoved(String direction){
+        if(zero[0] != gameBoard.length - 1 && direction.equals("D")){
+            return true;
+        }
+        if(zero[0] != 0 && direction.equals("U")){
+            return true;
+        }
+        if(zero[1] != gameBoard.length - 1 && direction.equals("R")){
+            return true;
+        }
+        return zero[1] != 0 && direction.equals("L");
+    }
+
+    public void findNeighbours(){
+        if(canBeMoved("U")){
+            neighbours.add(move("U"));
+        }
+        if(canBeMoved("R")){
+            neighbours.add(move("R"));
+        }
+        if(canBeMoved("D")){
+            neighbours.add(move("D"));
+        }
+        if(canBeMoved("L")){
+            neighbours.add(move("L"));
+        }
+    }
+
+    public int[][] deepCopy(Board board){
+        int[][] tab = new int[board.gameBoard.length][board.gameBoard.length];
+        for(int i = 0; i < board.gameBoard.length; i++){
+            System.arraycopy(board.gameBoard[i], 0, tab[i], 0, board.gameBoard.length);
+        }
+        return tab;
     }
 }
