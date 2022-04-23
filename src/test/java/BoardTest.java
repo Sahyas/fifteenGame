@@ -31,6 +31,8 @@ public class BoardTest {
                 counter++;
             }
         }
+        boardTest.setZero(0,0);
+        boardTest.setZero(1,0);
         assertEquals(boardTest.getBoardNumber(0, 0), 0);
         assertEquals(boardTest.getBoardNumber(0, 1), 1);
         boardTest.move('R');

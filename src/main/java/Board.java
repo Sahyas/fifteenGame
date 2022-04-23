@@ -6,12 +6,13 @@ public class Board {
 
     private int[][] gameBoard;
 
-    private int[] zero;
+    private int[] zero = new int[2];
 
     private FileManager fileManager = new FileManager();
 
     public Board() {
         try {
+            //INITIALIZE BOARD AND VALUES FROM FILE
             int counter = 2;
             int[] tmp = fileManager.initialFile();
             gameBoard = new int[tmp[0]][tmp[1]];
@@ -19,6 +20,15 @@ public class Board {
                 for(int j = 0; j < tmp[1]; j++){
                     gameBoard[i][j] = tmp[counter];
                     counter++;
+                }
+            }
+            //FIND ZERO PLACE
+            for (int i = 0; i < gameBoard.length; i++) {
+                for (int j = 0; j < gameBoard.length; j++) {
+                    if (gameBoard[i][j] == 0) {
+                        zero[0] = i;
+                        zero[1] = j;
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
@@ -32,6 +42,10 @@ public class Board {
 
     public void setGameBoard(int x, int y, int value) {
         this.gameBoard[x][y] = value;
+    }
+
+    public void setZero(int index, int value) {
+        this.zero[index] = value;
     }
 
     public void printBoard(){
@@ -49,39 +63,33 @@ public class Board {
     }
 
     public void move(char direction) {
-        int x0 = 0;
-        int y0 = 0;
-        for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard.length; j++) {
-                if (gameBoard[i][j] == 0) {
-                    x0 = i;
-                    y0 = j;
-                }
-            }
-        }
         switch (direction) {
             case 'L':
-                if (y0 != 0) {
-                    setGameBoard(x0, y0, gameBoard[x0][y0 - 1]);
-                    setGameBoard(x0, y0 - 1, 0);
+                if (zero[1] != 0) {
+                    setGameBoard(zero[0], zero[1], gameBoard[zero[0]][zero[1] - 1]);
+                    setGameBoard(zero[0], zero[1] - 1, 0);
+                    setZero(1,zero[1] - 1);
                 }
                 break;
             case 'R':
-                if (y0 != gameBoard.length) {
-                    setGameBoard(x0, y0, gameBoard[x0][y0 + 1]);
-                    setGameBoard(x0, y0 + 1, 0);
+                if (zero[1] != gameBoard.length) {
+                    setGameBoard(zero[0], zero[1], gameBoard[zero[0]][zero[1] + 1]);
+                    setGameBoard(zero[0], zero[1] + 1, 0);
+                    setZero(1,zero[1] + 1);
                 }
                 break;
             case 'U':
-                if (x0 != 0) {
-                    setGameBoard(x0, y0, gameBoard[x0 - 1][y0]);
-                    setGameBoard(x0 - 1, y0, 0);
+                if (zero[0] != 0) {
+                    setGameBoard(zero[0], zero[1], gameBoard[zero[0] - 1][zero[1]]);
+                    setGameBoard(zero[0] - 1, zero[1], 0);
+                    setZero(0,zero[0] - 1);
                 }
                 break;
             case 'D':
-                if (x0 != gameBoard.length) {
-                    setGameBoard(x0, y0, gameBoard[x0 + 1][y0]);
-                    setGameBoard(x0 + 1, y0, 0);
+                if (zero[0] != gameBoard.length) {
+                    setGameBoard(zero[0], zero[1], gameBoard[zero[0] + 1][zero[1]]);
+                    setGameBoard(zero[0] + 1, zero[1], 0);
+                    setZero(0,zero[0] + 1);
                 }
                 break;
         }
