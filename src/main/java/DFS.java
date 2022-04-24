@@ -9,22 +9,18 @@ public class DFS {
 
     }
 
-    public boolean dfs(Board startBoard, Board goal) {
-        FileManager file = new FileManager();
+    public Board dfs(Board startBoard, Board goal, String order) {
         LinkedList<Board> stack = new LinkedList<>();
         Set<Board> closed = new HashSet<>();
-        long start = System.currentTimeMillis();
-        int visitedStatesNumber = 0;
-        int processedStatesNumber;
         int depth = 0;
         if(startBoard.equals(goal)){
-            return true;
+            return startBoard;
         }
         stack.push(startBoard);
         while(!stack.isEmpty()){
             Board tmp = stack.pop();
             closed.add(tmp);
-            tmp.findNeighbours("ULDR");
+            tmp.findNeighbours(order);
             tmp.reverse();
             if(depth > 22){
                 continue;
@@ -34,21 +30,15 @@ public class DFS {
                 depth = n.depth;
                 if(n.equals(goal)) {
                     n.solutionSize = n.solutionPath.length();
-                    System.out.print(n.solutionPath + "\n");
-                    processedStatesNumber = closed.size();
-                    long end = System.currentTimeMillis();
-                    float elapsedTime = end - start;
-                    file.saveSolution(n.solutionPath, n.solutionSize);
-                    file.saveAdditionalInfo(n.solutionSize, visitedStatesNumber, processedStatesNumber,
-                            depth, elapsedTime);
-                    return true;
+                    n.processedStatesNumber = closed.size();
+                    n.visitedStatesNumber = closed.size() + stack.size();
+                    return n;
                 }
                 if(!closed.contains(n) && !stack.contains(n)) {
                     stack.push(n);
-                    visitedStatesNumber++;
                 }
                 }
             }
-        return false;
+        return null;
     }
 }

@@ -19,9 +19,11 @@ public class Board implements Comparable<Board> {
 
     public int depth = 0;
 
-    public int maximumDepth = 22;
-
     public int priority;
+
+    public int visitedStatesNumber;
+
+    public int processedStatesNumber;
 
     public Board(Board newBoard){
         this.gameBoard = deepCopy(newBoard);
@@ -32,6 +34,8 @@ public class Board implements Comparable<Board> {
         this.depth = newBoard.depth;
         this.solutionSize = newBoard.solutionSize;
         this.priority = newBoard.priority;
+        this.visitedStatesNumber = newBoard.visitedStatesNumber;
+        this.processedStatesNumber = newBoard.processedStatesNumber;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (gameBoard[i][j] == 0) {
@@ -46,11 +50,11 @@ public class Board implements Comparable<Board> {
         this.gameBoard = board;
     }
 
-    public Board() {
+    public Board(String file) {
         try {
             //INITIALIZE BOARD AND VALUES FROM FILE
             int counter = 2;
-            int[] tmp = fileManager.initialFile();
+            int[] tmp = fileManager.initialFile(file);
             gameBoard = new int[tmp[0]][tmp[1]];
             for(int i = 0; i < tmp[0]; i++){
                 for(int j = 0; j < tmp[1]; j++){
@@ -108,7 +112,8 @@ public class Board implements Comparable<Board> {
 
     @Override
     public int hashCode() {
-        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37).append(gameBoard).toHashCode();
+        return new org.apache.commons.lang3.builder.
+                HashCodeBuilder(17, 37).append(gameBoard).toHashCode();
     }
 
     public Board move(String direction) {
@@ -120,7 +125,7 @@ public class Board implements Comparable<Board> {
                     newBoard.gameBoard[zero[0]][zero[1] - 1] = 0;
                     newBoard.zero[1] = this.zero[1] - 1;
                     newBoard.solutionPath += "L";
-                    newBoard.depth++;
+                    newBoard.depth = this.depth + 1;
                 }
                 break;
             case "R":
@@ -129,7 +134,7 @@ public class Board implements Comparable<Board> {
                     newBoard.gameBoard[zero[0]][zero[1] + 1] = 0;
                     newBoard.zero[1] = this.zero[1] + 1;
                     newBoard.solutionPath += "R";
-                    newBoard.depth++;
+                    newBoard.depth = this.depth + 1;
                 }
                 break;
             case "U":
@@ -138,7 +143,7 @@ public class Board implements Comparable<Board> {
                     newBoard.gameBoard[zero[0] - 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] - 1;
                     newBoard.solutionPath += "U";
-                    newBoard.depth++;
+                    newBoard.depth = this.depth + 1;
                 }
                 break;
             case "D":
@@ -147,7 +152,7 @@ public class Board implements Comparable<Board> {
                     newBoard.gameBoard[zero[0] + 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] + 1;
                     newBoard.solutionPath += "D";
-                    newBoard.depth++;
+                    newBoard.depth = this.depth + 1;
                 }
                 break;
         }
@@ -187,29 +192,29 @@ public class Board implements Comparable<Board> {
         Collections.reverse(neighbours);
     }
 
-    public int hammingMetric(Board board){
-        int trueValue = 0;
-        int sum = 0;
-        for(int i = 0; i < gameBoard.length; i++){
-            for(int j = 0; j < gameBoard.length; j++){
-                if(board.gameBoard[i][j] != trueValue){
-                    sum++;
+    public int hammingMetric(){
+        int hamming = 0;
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 1; j <= 4; j++) {
+                if (this.gameBoard[i - 1][j - 1] == (i - 1) * 4 + j || this.gameBoard[i - 1][j - 1] == 0) {
+                    continue;
+                } else {
+                    hamming++;
                 }
-                trueValue++;
             }
         }
-        sum += this.depth;
-        return sum;
+        hamming += this.depth;
+        return hamming;
     }
 
-    public int manhattan(Board board) {
+    public int manhattan() {
         int distance = 0;
         int currentRow;
         int currentColumn;
         for (int i = 0; i < gameBoard.length; i++) {
             for (int j = 0; j < gameBoard.length; j++) {
-                if(board.gameBoard[i][j] != 0){
-                    int boardValue = board.gameBoard[i][j];
+                if(this.gameBoard[i][j] != 0 && this.gameBoard[i][j] != i * 4 + j + 1){
+                    int boardValue = this.gameBoard[i][j] -1;
                     currentRow = i;
                     currentColumn = j;
                     int correctRow = boardValue / 4;
@@ -218,7 +223,7 @@ public class Board implements Comparable<Board> {
                 }
             }
         }
-        distance += board.depth;
+        distance += this.depth;
         return distance;
     }
 

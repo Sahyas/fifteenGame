@@ -6,43 +6,32 @@ public class ASTAR {
 
     }
 
-    public boolean astar(Board startBoard, Board goal, String heuristics){
-        long start = System.currentTimeMillis();
+    public Board astar(Board startBoard, Board goal, String heuristics){
         int f = 0;
-        FileManager file = new FileManager();
         Queue<Board> queue = new PriorityQueue<>();
         Set<Board> closed = new HashSet<>();
-        int visitedStatesNumber = 0;
-        int processedStatesNumber;
-        int depth = 0;
         if(startBoard.equals(goal)){
-            return true;
+            return startBoard;
         }
         queue.add(startBoard);
         while(!queue.isEmpty()){
             Board tmp = queue.remove();
             if(tmp.equals(goal)){
-                long end = System.currentTimeMillis();
-                float elapsedTime = end - start;
                 tmp.solutionSize = tmp.solutionPath.length();
-                System.out.print(tmp.solutionPath + "\n");
-                processedStatesNumber = closed.size();
-                file.saveSolution(tmp.solutionPath, tmp.solutionSize);
-                file.saveAdditionalInfo(tmp.solutionSize, visitedStatesNumber, processedStatesNumber,
-                        depth, elapsedTime);
-                return true;
+                tmp.processedStatesNumber = closed.size();
+                tmp.visitedStatesNumber = closed.size() + queue.size();
+                return tmp;
             }
             closed.add(tmp);
             tmp.findNeighbours("LURD");
             for (Board n : tmp.neighbours
                  ) {
-                depth = n.depth;
                 if(!closed.contains(n)){
                     if(Objects.equals(heuristics, "hamm")){
-                        f = n.depth + n.hammingMetric(n);
+                        f = n.hammingMetric();
                     }
                     if(Objects.equals(heuristics, "manh")){
-                        f = n.depth + n.manhattan(n);
+                        f = n.manhattan();
                     }
                     if(!queue.contains(n)){
                         n.priority = f;
@@ -56,6 +45,6 @@ public class ASTAR {
                 }
             }
         }
-        return false;
+        return null;
     }
 }

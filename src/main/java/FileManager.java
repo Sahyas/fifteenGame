@@ -1,18 +1,15 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class FileManager {
-    public static String INITIAL_FILE = "puzzles/4x4_07_00029.txt";
-
     public FileManager() {
 
     }
 
-    public int[] initialFile() throws FileNotFoundException {
-        Scanner read = new Scanner(new File(INITIAL_FILE));
+    public int[] initialFile(String initialFile) throws FileNotFoundException {
+        Scanner read = new Scanner(new File(initialFile));
         int rowNumber = read.nextInt();
         int columnNumber = read.nextInt();
         int[] tmp = new int[rowNumber * columnNumber + 2];
@@ -24,10 +21,10 @@ public class FileManager {
         return tmp;
     }
 
-    public void saveSolution(String solution, int number)  {
+    public void saveSolution(String solution, int number, String file)  {
         PrintWriter print;
         try {
-            print = new PrintWriter("solution.txt");
+            print = new PrintWriter(file);
             print.println(number);
             print.println(solution);
             print.close();
@@ -37,10 +34,10 @@ public class FileManager {
     }
 
     public void saveAdditionalInfo(int solutionSize, int visited, int processed, int maxDepth,
-                                   float time){
+                                   float time, String file){
         PrintWriter print;
         try {
-            print = new PrintWriter("additional.txt");
+            print = new PrintWriter(file);
             print.println(solutionSize);
             print.println(visited);
             print.println(processed);
