@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Board {
+public class Board implements Comparable<Board> {
 
     public List<Board> neighbours = new ArrayList<>();
 
@@ -17,12 +17,21 @@ public class Board {
 
     public int solutionSize = 0;
 
+    public int depth = 0;
+
+    public int maximumDepth = 22;
+
+    public int priority;
+
     public Board(Board newBoard){
         this.gameBoard = deepCopy(newBoard);
         solutionPath = String.valueOf(newBoard.solutionPath);
         this.neighbours = newBoard.neighbours;
         this.zero = newBoard.zero;
         this.fileManager = newBoard.fileManager;
+        this.depth = newBoard.depth;
+        this.solutionSize = newBoard.solutionSize;
+        this.priority = newBoard.priority;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (gameBoard[i][j] == 0) {
@@ -111,6 +120,7 @@ public class Board {
                     newBoard.gameBoard[zero[0]][zero[1] - 1] = 0;
                     newBoard.zero[1] = this.zero[1] - 1;
                     newBoard.solutionPath += "L";
+                    newBoard.depth++;
                 }
                 break;
             case "R":
@@ -119,6 +129,7 @@ public class Board {
                     newBoard.gameBoard[zero[0]][zero[1] + 1] = 0;
                     newBoard.zero[1] = this.zero[1] + 1;
                     newBoard.solutionPath += "R";
+                    newBoard.depth++;
                 }
                 break;
             case "U":
@@ -127,6 +138,7 @@ public class Board {
                     newBoard.gameBoard[zero[0] - 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] - 1;
                     newBoard.solutionPath += "U";
+                    newBoard.depth++;
                 }
                 break;
             case "D":
@@ -135,6 +147,7 @@ public class Board {
                     newBoard.gameBoard[zero[0] + 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] + 1;
                     newBoard.solutionPath += "D";
+                    newBoard.depth++;
                 }
                 break;
         }
@@ -154,18 +167,11 @@ public class Board {
         return zero[1] != 0 && direction.equals("L");
     }
 
-    public void findNeighbours(){
-        if(canBeMoved("U")){
-            neighbours.add(move("U"));
-        }
-        if(canBeMoved("R")){
-            neighbours.add(move("R"));
-        }
-        if(canBeMoved("D")){
-            neighbours.add(move("D"));
-        }
-        if(canBeMoved("L")){
-            neighbours.add(move("L"));
+    public void findNeighbours(String moveOrder){
+        for(int i = 0; i < 4; i++) {
+            if (canBeMoved(String.valueOf(moveOrder.charAt(i)))) {
+                neighbours.add(move(String.valueOf(moveOrder.charAt(i))));
+            }
         }
     }
 
@@ -180,4 +186,44 @@ public class Board {
     public void reverse() {
         Collections.reverse(neighbours);
     }
+
+    public int hammingMetric(Board board){
+        int trueValue = 0;
+        int sum = 0;
+        for(int i = 0; i < gameBoard.length; i++){
+            for(int j = 0; j < gameBoard.length; j++){
+                if(board.gameBoard[i][j] != trueValue){
+                    sum++;
+                }
+                trueValue++;
+            }
+        }
+        sum += this.depth;
+        return sum;
+    }
+
+    public int manhattan(Board board) {
+        int distance = 0;
+        int currentRow;
+        int currentColumn;
+        for (int i = 0; i < gameBoard.length; i++) {
+            for (int j = 0; j < gameBoard.length; j++) {
+                if(board.gameBoard[i][j] != 0){
+                    int boardValue = board.gameBoard[i][j];
+                    currentRow = i;
+                    currentColumn = j;
+                    int correctRow = boardValue / 4;
+                    int correctColumn = boardValue % 4 - 1;
+                    distance += Math.abs(correctRow - currentRow) + Math.abs(correctColumn - currentColumn);
+                }
+            }
+        }
+        distance += board.depth;
+        return distance;
+    }
+
+    @Override
+    public int compareTo(Board o) {
+        return Integer.compare(this.priority, o.priority);
+        }
 }

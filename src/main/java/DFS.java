@@ -9,37 +9,43 @@ public class DFS {
 
     }
 
-    public boolean search(Board startBoard, Board goal) {
+    public boolean dfs(Board startBoard, Board goal) {
         FileManager file = new FileManager();
         LinkedList<Board> stack = new LinkedList<>();
         Set<Board> closed = new HashSet<>();
+        long start = System.currentTimeMillis();
+        int visitedStatesNumber = 0;
+        int processedStatesNumber;
+        int depth = 0;
         if(startBoard.equals(goal)){
             return true;
         }
         stack.push(startBoard);
         while(!stack.isEmpty()){
             Board tmp = stack.pop();
-            tmp.printBoard();
             closed.add(tmp);
-            System.out.print("\n");
-            tmp.findNeighbours();
+            tmp.findNeighbours("ULDR");
             tmp.reverse();
+            if(depth > 22){
+                continue;
+            }
             for (Board n : tmp.neighbours
             ) {
+                depth = n.depth;
                 if(n.equals(goal)) {
-                    if(tmp.zero[1] == 3){
-                        tmp.solutionPath += "R";
-                    }
-                    if(tmp.zero[1] == 2) {
-                        tmp.solutionPath += "D";
-                    }
-                    tmp.solutionSize = tmp.solutionPath.length();
-                    System.out.print(tmp.solutionPath + "\n");
-                    file.saveToFile(tmp.solutionPath, tmp.solutionSize);
+                    n.solutionSize = n.solutionPath.length();
+                    System.out.print(n.solutionPath + "\n");
+                    processedStatesNumber = closed.size();
+                    long end = System.currentTimeMillis();
+                    float elapsedTime = end - start;
+                    file.saveSolution(n.solutionPath, n.solutionSize);
+                    file.saveAdditionalInfo(n.solutionSize, visitedStatesNumber, processedStatesNumber,
+                            depth, elapsedTime);
                     return true;
                 }
                 if(!closed.contains(n) && !stack.contains(n)) {
                     stack.push(n);
+                    visitedStatesNumber++;
                 }
                 }
             }

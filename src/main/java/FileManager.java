@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class FileManager {
-    public static String INITIAL_FILE = "puzzles/4x4_07_00001.txt";
+    public static String INITIAL_FILE = "puzzles/4x4_07_00029.txt";
 
     public FileManager() {
 
@@ -24,7 +24,7 @@ public class FileManager {
         return tmp;
     }
 
-    public void saveToFile(String solution, int number)  {
+    public void saveSolution(String solution, int number)  {
         PrintWriter print;
         try {
             print = new PrintWriter("solution.txt");
@@ -34,6 +34,21 @@ public class FileManager {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
 
+    public void saveAdditionalInfo(int solutionSize, int visited, int processed, int maxDepth,
+                                   float time){
+        PrintWriter print;
+        try {
+            print = new PrintWriter("additional.txt");
+            print.println(solutionSize);
+            print.println(visited);
+            print.println(processed);
+            print.println(maxDepth);
+            print.println(time);
+            print.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

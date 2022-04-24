@@ -1,3 +1,5 @@
+import org.apache.commons.lang.time.StopWatch;
+
 import java.util.*;
 
 public class BFS {
@@ -5,37 +7,44 @@ public class BFS {
     public BFS() {
     }
 
-    public boolean search(Board startBoard, Board goal) {
+    public boolean bfs(Board startBoard, Board goal) {
+        long start = System.currentTimeMillis();
         FileManager file = new FileManager();
         Queue<Board> queue = new LinkedList<>();
         Set<Board> closed = new HashSet<>();
-
+        int visitedStatesNumber = 0;
+        int processedStatesNumber;
+        int depth;
         if (startBoard.equals(goal)) {
             return true;
         }
         queue.add(startBoard);
+        Board tmp = null;
         while (!queue.isEmpty()) {
-            Board tmp = queue.remove();
+            tmp = queue.remove();
             closed.add(tmp);
-            tmp.findNeighbours();
-            for (int i = 0; i < tmp.neighbours.size(); i++) {
-                if (tmp.neighbours.get(i).equals(goal)) {
-                    if(tmp.zero[1] == 3){
-                        tmp.solutionPath += "R";
-                    }
-                    if(tmp.zero[1] == 2) {
-                        tmp.solutionPath += "D";
-                    }
-                    tmp.solutionSize = tmp.solutionPath.length();
-                    System.out.print(tmp.solutionPath + "\n");
-                    file.saveToFile(tmp.solutionPath, tmp.solutionSize);
+            tmp.findNeighbours("LURD");
+            for (Board n : tmp.neighbours
+                 ) {
+                depth = n.depth;
+                if (n.equals(goal)) {
+                    n.solutionSize = n.solutionPath.length();
+                    System.out.print(n.solutionPath + "\n");
+                    processedStatesNumber = closed.size();
+                    long end = System.currentTimeMillis();
+                    float elapsedTime = end - start;
+                    file.saveSolution(n.solutionPath, n.solutionSize);
+                    file.saveAdditionalInfo(n.solutionSize, visitedStatesNumber, processedStatesNumber,
+                            depth, elapsedTime);
                     return true;
                 }
-                if (!queue.contains(tmp.neighbours.get(i)) && !closed.contains(tmp.neighbours.get(i))) {
-                    queue.add(tmp.neighbours.get(i));
+                if (!queue.contains(n) && !closed.contains(n)) {
+                    queue.add(n);
+                    visitedStatesNumber++;
                 }
             }
         }
+        tmp.solutionSize = -1;
         return false;
     }
 }

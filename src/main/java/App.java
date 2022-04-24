@@ -7,6 +7,8 @@ public class App {
 
 
     public static void main(String[] args) {
+        String algorithm = "";
+        String heuristics = "";
         int[][] solvedBoard =
                 {
                         {1, 2, 3, 4},
@@ -18,14 +20,15 @@ public class App {
         Board goal = new Board(solvedBoard);
         BFS bfs = new BFS();
         DFS dfs = new DFS();
+        ASTAR astar = new ASTAR();
 
-        //bfs.search(board1, goal);
-
-        if(dfs.search(board1, goal)){
-            System.out.print("sukces");
-        }
-        else{
-            System.out.print("yikes");
+        switch(algorithm){
+            case "bfs":
+                bfs.bfs(board1, goal);
+            case "dfs":
+                dfs.dfs(board1, goal);
+            case "astar":
+                astar.astar(board1, goal, heuristics);
         }
 
     }
