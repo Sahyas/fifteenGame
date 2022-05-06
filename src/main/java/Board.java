@@ -1,5 +1,9 @@
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,9 +19,9 @@ public class Board implements Comparable<Board> {
 
     public String solutionPath = "";
 
-    public int solutionSize = 0;
+    public int solutionSize;
 
-    public int depth = 0;
+    public int depth;
 
     public int priority;
 
@@ -25,34 +29,30 @@ public class Board implements Comparable<Board> {
 
     public int processedStatesNumber;
 
-    public Board(Board newBoard){
+    public String previousMove;
+
+    public int maxDepth;
+
+    public Board(Board newBoard, String move){
         this.gameBoard = deepCopy(newBoard);
         solutionPath = String.valueOf(newBoard.solutionPath);
-        this.neighbours = newBoard.neighbours;
-        this.zero = newBoard.zero;
-        this.fileManager = newBoard.fileManager;
-        this.depth = newBoard.depth;
-        this.solutionSize = newBoard.solutionSize;
-        this.priority = newBoard.priority;
-        this.visitedStatesNumber = newBoard.visitedStatesNumber;
-        this.processedStatesNumber = newBoard.processedStatesNumber;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (gameBoard[i][j] == 0) {
-                    zero[0] = i;
-                    zero[1] = j;
-                }
-            }
-        }
+        this.priority = 0;
+        this.previousMove = move;
+        this.zero[0] = newBoard.zero[0];
+        this.zero[1] = newBoard.zero[1];
     }
 
     public Board(int[][] board){
+        this.depth = 0;
+        this.solutionSize = 0;
+        this.previousMove = "none";
         this.gameBoard = board;
     }
 
     public Board(String file) {
         try {
             //INITIALIZE BOARD AND VALUES FROM FILE
+            this.previousMove = "none";
             int counter = 2;
             int[] tmp = fileManager.initialFile(file);
             gameBoard = new int[tmp[0]][tmp[1]];
@@ -106,54 +106,44 @@ public class Board implements Comparable<Board> {
 
         Board board = (Board) o;
 
-        return new org.apache.commons.lang3.builder.EqualsBuilder().
-                append(gameBoard, board.gameBoard).isEquals();
+        return new EqualsBuilder().append(gameBoard, board.gameBoard).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new org.apache.commons.lang3.builder.
-                HashCodeBuilder(17, 37).append(gameBoard).toHashCode();
+        return new HashCodeBuilder(17, 37).append(gameBoard).toHashCode();
     }
 
     public Board move(String direction) {
-        Board newBoard = new Board(this);
+        Board newBoard = new Board(this, direction);
         switch (direction) {
             case "L":
-                if (zero[1] != 0) {
                     newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0]][zero[1] - 1];
                     newBoard.gameBoard[zero[0]][zero[1] - 1] = 0;
                     newBoard.zero[1] = this.zero[1] - 1;
                     newBoard.solutionPath += "L";
                     newBoard.depth = this.depth + 1;
-                }
                 break;
             case "R":
-                if (zero[1] != gameBoard.length - 1) {
                     newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0]][zero[1] + 1];
                     newBoard.gameBoard[zero[0]][zero[1] + 1] = 0;
                     newBoard.zero[1] = this.zero[1] + 1;
                     newBoard.solutionPath += "R";
                     newBoard.depth = this.depth + 1;
-                }
                 break;
             case "U":
-                if (zero[0] != 0) {
                     newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0] - 1][zero[1]];
                     newBoard.gameBoard[zero[0] - 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] - 1;
                     newBoard.solutionPath += "U";
                     newBoard.depth = this.depth + 1;
-                }
                 break;
             case "D":
-                if (zero[0] != gameBoard.length - 1) {
                     newBoard.gameBoard[zero[0]][zero[1]] = newBoard.gameBoard[zero[0] + 1][zero[1]];
                     newBoard.gameBoard[zero[0] + 1][zero[1]] = 0;
                     newBoard.zero[0] = this.zero[0] + 1;
                     newBoard.solutionPath += "D";
                     newBoard.depth = this.depth + 1;
-                }
                 break;
         }
         return newBoard;
@@ -174,10 +164,17 @@ public class Board implements Comparable<Board> {
 
     public void findNeighbours(String moveOrder){
         for(int i = 0; i < 4; i++) {
-            if (canBeMoved(String.valueOf(moveOrder.charAt(i)))) {
+            if (canBeMoved(String.valueOf(moveOrder.charAt(i))) && IsNotGoingBack(moveOrder.charAt(i))) {
                 neighbours.add(move(String.valueOf(moveOrder.charAt(i))));
             }
         }
+    }
+
+    public boolean IsNotGoingBack(char direction) {
+        return (!previousMove.equals("L") || direction != 'R') &&
+                (!previousMove.equals("U") || direction != 'D') &&
+                (!previousMove.equals("R") || direction != 'L') &&
+                (!previousMove.equals("D") || direction != 'U');
     }
 
     public int[][] deepCopy(Board board){
@@ -225,6 +222,17 @@ public class Board implements Comparable<Board> {
         }
         distance += this.depth;
         return distance;
+    }
+
+    public boolean isEqual(int[][] board) {
+        for(int i = 0; i < gameBoard.length; i++){
+            for(int j = 0; j < gameBoard.length; j++){
+                if(gameBoard[i][j] != board[i][j]){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override

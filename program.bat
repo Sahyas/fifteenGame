@@ -23,7 +23,7 @@
 
 param([string]$strategy, [string]$param)
 
-$Progcmd = 'echo program'
+$Progcmd = 'java -jar "C:\Users\Szymon\Desktop\SISE\out\artifacts\SISE_jar\SISE.jar"'
 $Orders = @('RDUL', 'RDLU', 'DRUL', 'DRLU', 'LUDR',  'LURD', 'ULDR', 'ULRD')
 $Heuristics = @('hamm', 'manh')
 $InitFilenameRegex = '^[a-zA-Z0-9]+_[0-9]+_[0-9]+.txt$'

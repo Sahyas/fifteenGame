@@ -7,21 +7,46 @@ public class BFS {
     public BFS() {
     }
 
-    public Board bfs(Board startBoard, Board goal, String order) {
+    public Board bfs2(Board startBoard, Board goal, String order) {
         Queue<Board> queue = new LinkedList<>();
         Set<Board> closed = new HashSet<>();
-        if (startBoard.equals(goal)) {
+        if(startBoard.equals(goal)){
             return startBoard;
         }
         queue.add(startBoard);
-        Board tmp = null;
+        closed.add(startBoard);
+        while(!queue.isEmpty()){
+            Board tmp = queue.remove();
+            tmp.findNeighbours(order);
+            for (Board n : tmp.neighbours
+            ) {
+                if(n.equals(goal)){
+                    n.processedStatesNumber = closed.size();
+                    n.visitedStatesNumber = closed.size() + queue.size();
+                    return n;
+                }
+                if(!closed.contains(n)){
+                    queue.add(n);
+                    closed.add(n);
+                }
+            }
+        }
+        return null;
+    }
+
+    public Board bfs(Board startBoard, Board goal, String order) {
+        if (startBoard.equals(goal)) {
+            return startBoard;
+        }
+        Queue<Board> queue = new LinkedList<>();
+        Set<Board> closed = new HashSet<>();
+        queue.add(startBoard);
         while (!queue.isEmpty()) {
-            tmp = queue.remove();
+            Board tmp = queue.remove();
             closed.add(tmp);
             tmp.findNeighbours(order);
             for (Board n : tmp.neighbours
                  ) {
-                //depth = n.depth;
                 if (n.equals(goal)) {
                     n.processedStatesNumber = closed.size();
                     n.visitedStatesNumber = closed.size() + queue.size();
@@ -32,7 +57,33 @@ public class BFS {
                 }
             }
         }
-        tmp.solutionSize = -1;
+        return null;
+    }
+
+    public Board bfs3(Board startBoard, Board goal, String order) {
+        if(startBoard.equals(goal)){
+            return startBoard;
+        }
+        Queue<Board> queue = new LinkedList<>();
+        Set<Board> closed = new HashSet<>();
+        queue.add(startBoard);
+        closed.add(startBoard);
+        while(!queue.isEmpty()){
+            Board tmp = queue.remove();
+            tmp.findNeighbours(order);
+            for (Board n: tmp.neighbours
+                 ) {
+                if(goal.equals(n)){
+                    n.processedStatesNumber = closed.size();
+                    n.visitedStatesNumber = closed.size() + queue.size();
+                    return n;
+                }
+                if(!closed.contains(n)){
+                    queue.add(n);
+                    closed.add(n);
+                }
+            }
+        }
         return null;
     }
 }

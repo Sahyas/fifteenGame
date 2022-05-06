@@ -1,8 +1,4 @@
-import java.io.File;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 public class DFS {
     public DFS() {
@@ -10,35 +6,46 @@ public class DFS {
     }
 
     public Board dfs(Board startBoard, Board goal, String order) {
-        LinkedList<Board> stack = new LinkedList<>();
-        Set<Board> closed = new HashSet<>();
-        int depth = 0;
-        if(startBoard.equals(goal)){
+        int deepest = 0;
+        if (startBoard.equals(goal)) {
             return startBoard;
         }
+        int counter = 0;
+        LinkedList<Board> stack = new LinkedList<>();
+        Set<Board> closed = new HashSet<>();
         stack.push(startBoard);
+        counter++;
         while(!stack.isEmpty()){
             Board tmp = stack.pop();
+            if(tmp.depth > 20){
+                continue;
+            }
+            if(tmp.depth > deepest){
+                deepest = tmp.depth;
+            }
             closed.add(tmp);
             tmp.findNeighbours(order);
             tmp.reverse();
-            if(depth > 22){
-                continue;
-            }
-            for (Board n : tmp.neighbours
-            ) {
-                depth = n.depth;
-                if(n.equals(goal)) {
+            for (Board n: tmp.neighbours
+                 ) {
+                if(goal.isEqual(n.getGameBoard())){
+                    System.out.print(n.solutionPath);
                     n.solutionSize = n.solutionPath.length();
                     n.processedStatesNumber = closed.size();
-                    n.visitedStatesNumber = closed.size() + stack.size();
+                    n.visitedStatesNumber = counter;
+                    n.maxDepth = deepest;
                     return n;
                 }
-                if(!closed.contains(n) && !stack.contains(n)) {
+                if(!closed.contains(n) && !stack.contains(n)){
                     stack.push(n);
-                }
+                    counter++;
                 }
             }
-        return null;
+        }
+        startBoard.solutionSize = -1;
+        startBoard.processedStatesNumber = closed.size();
+        startBoard.visitedStatesNumber = counter;
+        startBoard.maxDepth = deepest;
+        return startBoard;
     }
 }
