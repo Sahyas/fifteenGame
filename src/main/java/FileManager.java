@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class FileManager {
@@ -34,18 +35,20 @@ public class FileManager {
     }
 
     public void saveAdditionalInfo(int solutionSize, int visited, int processed, int maxDepth,
-                                   float time, String file){
-        PrintWriter print;
-        try {
-            print = new PrintWriter(file);
-            print.println(solutionSize);
-            print.println(visited);
-            print.println(processed);
-            print.println(maxDepth);
-            print.println(time);
-            print.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+                                   BigDecimal time, String file){
+        if(solutionSize != -1) {
+            PrintWriter print;
+            try {
+                print = new PrintWriter(file);
+                print.println(solutionSize);
+                print.println(visited);
+                print.println(processed);
+                print.println(maxDepth);
+                print.println(time);
+                print.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

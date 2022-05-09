@@ -61,6 +61,7 @@ public class BFS {
     }
 
     public Board bfs3(Board startBoard, Board goal, String order) {
+        int deepest = 0;
         if(startBoard.equals(goal)){
             return startBoard;
         }

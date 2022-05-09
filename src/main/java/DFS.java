@@ -29,7 +29,6 @@ public class DFS {
             for (Board n: tmp.neighbours
                  ) {
                 if(goal.isEqual(n.getGameBoard())){
-                    System.out.print(n.solutionPath);
                     n.solutionSize = n.solutionPath.length();
                     n.processedStatesNumber = closed.size();
                     n.visitedStatesNumber = counter;
